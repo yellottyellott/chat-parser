@@ -9,6 +9,8 @@ cat > /home/vagrant/.bash_profile << EOF
 if [ -f ~/.bashrc ]; then
   source ~/.bashrc
 fi
+
+export PYTHONDONTWRITEBYTECODE=1
 source /usr/local/bin/virtualenvwrapper_lazy.sh
 
 cd /vagrant
