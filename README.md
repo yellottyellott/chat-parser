@@ -72,9 +72,18 @@ Links are URLs contained in the message, along with the page's title.
 Development
 ====
 
-Requirements:
+Requirements
+----
 * [VirtualBox 4.3.28][3]
 * [Vagrant 1.7.2][4]
+
+
+Testing
+----
+
+    $ vagrant up
+    $ vagrant ssh
+    $ py.test
 
 [1]: https://help.hipchat.com/knowledgebase/articles/64429-how-do-mentions-work "HipChat mentions documentatiion"
 [2]: https://www.hipchat.com/emoticons "HipChat emoticons documentation"

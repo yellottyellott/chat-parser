@@ -1,0 +1,6 @@
+# Insecure Platform Warning fixes
+pyopenssl==0.13
+ndg-httpsclient==0.4.0
+pyasn1==0.1.7
+
+pytest==2.6.4
