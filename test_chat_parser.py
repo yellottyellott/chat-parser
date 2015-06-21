@@ -1,4 +1,18 @@
+import pytest
+
 from chat_parser import matchers
+
+
+class TestMatcher(object):
+    """
+    Tests the base Matcher class.
+    """
+    def test_pattern_not_defined(self):
+        matcher = matchers.Matcher()
+        string = "Adventure time! Come on, grab your friends."""
+
+        with pytest.raises(NotImplementedError):
+            matcher.matches(string)
 
 
 class TestMentionMatcher(object):
