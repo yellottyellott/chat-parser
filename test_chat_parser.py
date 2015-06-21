@@ -77,3 +77,76 @@ class TestMentionMatcher(object):
         string = "@here It's Adventure Time!"
         matches = self.matcher.matches(string)
         assert matches == set(["here"])
+
+
+class TestEmoticonMatcher(object):
+    """
+    Verifies EmoticonMatcher correctly finds all emoticons in a string.
+    """
+    def setup_method(self, method):
+        self.matcher = matchers.EmoticonMatcher()
+
+    def test_no_emoticons(self):
+        string = "Adventure time! Come on, grab your friends."""
+        matches = self.matcher.matches(string)
+        assert matches == set()
+
+    def test_emoticon(self):
+        string = "(jake) the dog!"
+        matches = self.matcher.matches(string)
+        assert matches == set(["jake"])
+
+    def test_multiple(self):
+        string = "(jake) the dog! and (finn) the human!"
+        matches = self.matcher.matches(string)
+        assert matches == set(["jake", "finn"])
+
+    def test_same_emoticon_sent_multiple_times(self):
+        """Verify emoticons are only returned once.
+
+        If an emoticon is mentioned mutliple times, make sure it's
+        only returend once.
+        """
+        string = "(jake)(jake)(jake). (jake)(jake)(jake). (jake) your booty."
+        matches = self.matcher.matches(string)
+        assert matches == set(["jake"])
+
+    def test_case_insensitivity(self):
+        """Verify case insensitivity.
+
+        If multiple instances of the same emoticon with different casing
+        exist, make sure it's only returned once.
+        """
+        string = "(jake) the dog. (Jake) The Dog. (JAKE) THE DOGGGG!!!"
+        matches = self.matcher.matches(string)
+        assert matches == set(["jake"])
+
+    def test_numbers(self):
+        string = "Science. Is. (mathematical123)!"
+        matches = self.matcher.matches(string)
+        assert matches == set(["mathematical123"])
+
+    def test_underscores(self):
+        string = "(jake_the_dog) is not a valid emoticon."
+        matches = self.matcher.matches(string)
+        assert matches == set()
+
+    def test_whitespace(self):
+        string = "(jake the dog) is not a valid emoticon."
+        matches = self.matcher.matches(string)
+        assert matches == set()
+
+    def test_character_length(self):
+        """Verify emoticons are no longer than 15 characters.
+        """
+        string = "()"  # 0
+        matches = self.matcher.matches(string)
+        assert matches == set()
+
+        string = "(mathematical123)"  # 15
+        matches = self.matcher.matches(string)
+        assert matches == set(["mathematical123"])
+
+        string = "(mathematical1234)"  # 16
+        matches = self.matcher.matches(string)
+        assert matches == set()

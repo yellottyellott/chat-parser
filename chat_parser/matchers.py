@@ -28,3 +28,9 @@ class MentionMatcher(Matcher):
     """
     pattern = r'@(\w+)'
 
+
+class EmoticonMatcher(Matcher):
+    """
+    Finds all (emoticons) in a string.
+    """
+    pattern = r'\(([a-zA-Z0-9]{1,15})\)'
