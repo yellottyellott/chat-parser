@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # This script is used to provision the vagrant box.
 
-sudo apt-get install -y python-dev python-pip libffi-dev libssl-dev
+sudo apt-get install -y python-dev python-pip libffi-dev libssl-dev libxml2-dev libxslt1-dev
 sudo pip install virtualenvwrapper
 
 # Create .bash_profile
