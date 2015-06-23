@@ -164,20 +164,20 @@ class TestLinkMatcher(object):
 
     def test_no_links(self):
         string = "It came from the night-o-sphere. bum .bum .bum."
-        matches = self.matcher.matches(string)
+        matches = self.matcher.get_matches(string)
         assert matches == []
 
     def test_link(self):
         sweet_vid = "https://www.youtube.com/watch?v=aZdtZIuVzmE"
         string = "Finn, check it: {}".format(sweet_vid)
-        matches = self.matcher.matches(string)
+        matches = self.matcher.get_matches(string)
         assert matches == [sweet_vid]
 
     def test_multiple(self):
         vid1 = "https://www.youtube.com/watch?v=IZHnWvMaoKM"
         vid2 = "https://www.youtube.com/watch?v=dGGk8y_s9uQ"
         string = "Watch this: {} and this: {}".format(vid1, vid2)
-        matches = self.matcher.matches(string)
+        matches = self.matcher.get_matches(string)
         assert matches == [vid1, vid2]
 
     def test_multiline_matching(self):
@@ -187,13 +187,13 @@ class TestLinkMatcher(object):
             Makin' bacon pancakes!
             Bacon pancaaakkkeeessss: {}
             """.format(vid)
-        matches = self.matcher.matches(string)
+        matches = self.matcher.get_matches(string)
         assert matches == [vid]
 
     def test_no_surrounding_whitespace(self):
         """We're only matching links surrounded by whitespace."""
         string = "Don't visit _night-o-sphere.com_. It's too scary."
-        matches = self.matcher.matches(string)
+        matches = self.matcher.get_matches(string)
         assert matches == []
 
     def test_valid_links(self):
@@ -245,7 +245,7 @@ class TestLinkMatcher(object):
             "finn:thehuman@10.0.0.1",
         ]
         for url in valid_urls:
-            matches = self.matcher.matches(url)
+            matches = self.matcher.get_matches(url)
             assert matches == [url]
 
     def test_invalid_links(self):
@@ -278,5 +278,5 @@ class TestLinkMatcher(object):
             "http://.www.foo.bar./",
         ]
         for url in invalid_urls:
-            matches = self.matcher.matches(url)
+            matches = self.matcher.get_matches(url)
             assert matches == []

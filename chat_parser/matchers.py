@@ -23,14 +23,17 @@ class Matcher(object):
         if not self.pattern:
             raise NotImplementedError(".pattern must be defined.")
 
+        matches = self.get_matches(string)
+        matches = self.clean_matches(matches)
+        return matches
+
+    def get_matches(self, string):
         matches = re.finditer(self.pattern, string)
         matches = [m.group(1) for m in matches]
-        matches = self.clean_matches(matches)
-
         return matches
 
     def clean_matches(self, matches):
-        """Get rid of duplicates."""
+        """Manipulate matches before returning."""
         return list(set(map(lambda s: s.lower(), matches)))
 
 
@@ -59,7 +62,7 @@ class LinkMatcher(Matcher):
     pattern = (
         '(?:\s|^)'
         '('
-            '(?:(?:https?|ftps?)://)?'  # scheme
+            '(?:(?:https?|s?ftp)://)?'  # scheme
             '(?:\S+(?::\S*)?@)?'  # auth
             '(?:'
                 '(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}'  # NOQA ipv4
