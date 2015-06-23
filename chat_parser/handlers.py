@@ -2,7 +2,7 @@ from . import matchers
 from . import serializers
 
 
-class Parser(object):
+class Handler(object):
     matcher_classes = {
         'mentions': matchers.MentionMatcher,
         'emoticons': matchers.EmoticonMatcher,
@@ -27,5 +27,5 @@ class Parser(object):
 
 
 def parse(string, format='json'):
-    parser = Parser()
-    return parser.serialize(parser.parse(string))
+    handler = Handler()
+    return handler.serialize(handler.parse(string))
