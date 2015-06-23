@@ -1,7 +1,7 @@
 """Chat Parse.
 
 Usage:
-  chatparse [-v | --verbose] <message>
+  chatparse [-v | --verbose]
   chatparse (-h | --help)
   chatparse --version
 
@@ -10,8 +10,14 @@ Options:
   -h --help     Show this screen.
   --version     Show version.
 
+Examples:
+  cat examples/all.txt | chatparse
+  cat examples/* | chatparse
+  echo "@bob, come here real quick" | chatparse
 """
 import logging
+import sys
+
 from docopt import docopt
 
 from chat_parser import parse
@@ -31,4 +37,7 @@ def setup_logging(verbose=False):
 def main():
     args = docopt(__doc__, version='Chat Parse 0.0.1')
     setup_logging(args['--verbose'])
-    print parse(args['<message>'])
+
+    lines = ''.join(sys.stdin.readlines())
+
+    print parse(lines)

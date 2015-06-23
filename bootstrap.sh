@@ -22,4 +22,5 @@ chown vagrant:vagrant /home/vagrant/.bash_profile
 
 su vagrant -c "
     source /usr/local/bin/virtualenvwrapper_lazy.sh &&
-    mkvirtualenv chat_parser -r /vagrant/requirements.txt"
+    mkvirtualenv chat_parser -r /vagrant/requirements.txt &&
+    cd /vagrant && pip install -e ."

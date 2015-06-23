@@ -25,14 +25,27 @@ other formats.
 
 Installation
 ====
-
+    $ apt-get install libffi-dev libssl-dev  # requests
+    $ apt-get install libxml2-dev libxslt1-dev  # lxml
     $ pip install git+https://github.com/yellottyellott/chat-parser.git
+
+A vagrant file has been included for convenience.
+
+    $ vagrant up
+    $ vagrant ssh
+
+    $ echo "@bob, come here real quick" | chatparse
+    $ cat examples/mentions.txt | chatparse
+    $ cat examples/emoticons.txt | chatparse
+    $ cat examples/links.txt | chatparse
+    $ cat examples/all.txt | chatparse
+    $ cat examples/all.txt | chatparse -v  # For debug logging
 
 
 Usage
 ====
 
-    $ chatparse "Hey, @Finn, check out what @BMO can do: https://www.youtube.com/watch?v=ZRlUmkHlCCg (breadcrumbs)."
+    $ echo "Hey, @Finn, check out what @BMO can do: https://www.youtube.com/watch?v=ZRlUmkHlCCg (breadcrumbs)." | chatparse
 
     {
       "mentions": [
@@ -57,7 +70,7 @@ Mention Parsing
 when hitting a non-word character.
 
 
-    "@chris you around?"
+    $ echo "@chris you around?" | chatparse
 
     {
       "mentions": [
@@ -71,7 +84,7 @@ Emoticon Parsing
 [(emoticons)][2] are alphanumeric strings, no longer than 15 characters,
 contained in parenthesis.
 
-    "Good morning! (megusta) (coffee)"
+    $ echo "Good morning! (megusta) (coffee)" | chatparse
 
     {
       "emoticons": [
@@ -85,7 +98,7 @@ Link Parsing
 ----
 Links are URLs contained in the message, along with the page's title.
 
-    "Olympics are starting soon; http://www.nbcolympics.com"
+    $ echo "Olympics are starting soon; http://www.nbcolympics.com" | chatparse
 
     {
       "links": [
