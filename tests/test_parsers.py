@@ -109,8 +109,8 @@ class TestEmoticonParser(object):
     def test_same_emoticon_sent_multiple_times(self):
         """Verify emoticons are only returned once.
 
-        If an emoticon is mentioned mutliple times, make sure it's
-        only returend once.
+        If an emoticon is mentioned multiple times, make sure it's
+        only returned once.
         """
         string = "(jake)(jake)(jake). (jake)(jake)(jake). (jake) your booty."
         matches = self.parser.parse(string)

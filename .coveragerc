@@ -1,0 +1,9 @@
+[run]
+source = chat_parser
+branch = True
+omit =
+    setup.py
+    chat_parser/main.py
+
+[report]
+show_missing = True

@@ -23,6 +23,13 @@ class TestHandler(object):
         }
         assert data == expected_data
 
+    def test_parse_with_missing_keys(self):
+        """Verify emtpy keys are missing."""
+        string = "@jake is makin bacon pancakes."
+        expected_data = {'mentions': ['jake']}
+        data = self.handler.parse(string)
+        assert data == expected_data
+
     def test_serialize(self):
         data = {
             'mentions': ['jake'],

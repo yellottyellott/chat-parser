@@ -111,7 +111,8 @@ Testing
 
     $ vagrant up
     $ vagrant ssh
-    $ py.test
+    $ py.test --cov-report term-missing --cov chat_parser
+    $ py.test -s  # to allow break points
 
 [1]: https://help.hipchat.com/knowledgebase/articles/64429-how-do-mentions-work "HipChat mentions documentatiion"
 [2]: https://www.hipchat.com/emoticons "HipChat emoticons documentation"

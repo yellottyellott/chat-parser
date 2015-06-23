@@ -22,10 +22,6 @@ class Parser(object):
     """
     regex = None
 
-    def __init__(self, pattern=None):
-        if pattern:
-            self.regex = re.compile(pattern, re.IGNORECASE | re.MULTILINE)
-
     def parse(self, string):
         if not self.regex:
             raise NotImplementedError(".regex must be defined.")
