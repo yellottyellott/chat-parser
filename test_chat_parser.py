@@ -28,26 +28,26 @@ class TestMentionMatcher(object):
     def test_no_mentions(self):
         string = "Adventure time! Come on, grab your friends."""
         matches = self.matcher.matches(string)
-        assert matches == set()
+        assert matches == []
 
     def test_mention(self):
         string = "With @jake the dog!"
         matches = self.matcher.matches(string)
-        assert matches == set(["jake"])
+        assert matches == ["jake"]
 
     def test_multiple(self):
         string = "With @jake the dog! And @finn the human,"
         matches = self.matcher.matches(string)
-        assert matches == set(["jake", "finn"])
+        assert matches == ["jake", "finn"]
 
     def test_nonword_characters(self):
         string = "With @!c3k!ng the wizard!"
         matches = self.matcher.matches(string)
-        assert matches == set()
+        assert matches == []
 
         string = "With @ic3_k!ng the wizard!"
         matches = self.matcher.matches(string)
-        assert matches == set(["ic3_k"])
+        assert matches == ["ic3_k"]
 
     def test_same_nick_mentioned_multiple_times(self):
         """Verifies mentions are only returned once.
@@ -57,7 +57,7 @@ class TestMentionMatcher(object):
         """
         string = "With @jake the dog! And @jake the dog,"
         matches = self.matcher.matches(string)
-        assert matches == set(["jake"])
+        assert matches == ["jake"]
 
     def test_case_insensitivity(self):
         """Verify case insensitivity.
@@ -67,19 +67,19 @@ class TestMentionMatcher(object):
         """
         string = "With @Jake the dog! And @JAKE the dog,"
         matches = self.matcher.matches(string)
-        assert matches == set(["jake"])
+        assert matches == ["jake"]
 
     def test_all_mention(self):
         """@all is a builtin mention."""
         string = "@all The fun will never end!"
         matches = self.matcher.matches(string)
-        assert matches == set(["all"])
+        assert matches == ["all"]
 
     def test_here_mention(self):
         """@here is a built in mention."""
         string = "@here It's Adventure Time!"
         matches = self.matcher.matches(string)
-        assert matches == set(["here"])
+        assert matches == ["here"]
 
 
 class TestEmoticonMatcher(object):
@@ -92,17 +92,17 @@ class TestEmoticonMatcher(object):
     def test_no_emoticons(self):
         string = "Adventure time! Come on, grab your friends."""
         matches = self.matcher.matches(string)
-        assert matches == set()
+        assert matches == []
 
     def test_emoticon(self):
         string = "(jake) the dog!"
         matches = self.matcher.matches(string)
-        assert matches == set(["jake"])
+        assert matches == ["jake"]
 
     def test_multiple(self):
         string = "(jake) the dog! and (finn) the human!"
         matches = self.matcher.matches(string)
-        assert matches == set(["jake", "finn"])
+        assert matches == ["jake", "finn"]
 
     def test_same_emoticon_sent_multiple_times(self):
         """Verify emoticons are only returned once.
@@ -112,7 +112,7 @@ class TestEmoticonMatcher(object):
         """
         string = "(jake)(jake)(jake). (jake)(jake)(jake). (jake) your booty."
         matches = self.matcher.matches(string)
-        assert matches == set(["jake"])
+        assert matches == ["jake"]
 
     def test_case_insensitivity(self):
         """Verify case insensitivity.
@@ -122,37 +122,37 @@ class TestEmoticonMatcher(object):
         """
         string = "(jake) the dog. (Jake) The Dog. (JAKE) THE DOGGGG!!!"
         matches = self.matcher.matches(string)
-        assert matches == set(["jake"])
+        assert matches == ["jake"]
 
     def test_numbers(self):
         string = "Science. Is. (mathematical123)!"
         matches = self.matcher.matches(string)
-        assert matches == set(["mathematical123"])
+        assert matches == ["mathematical123"]
 
     def test_underscores(self):
         string = "(jake_the_dog) is not a valid emoticon."
         matches = self.matcher.matches(string)
-        assert matches == set()
+        assert matches == []
 
     def test_whitespace(self):
         string = "(jake the dog) is not a valid emoticon."
         matches = self.matcher.matches(string)
-        assert matches == set()
+        assert matches == []
 
     def test_character_length(self):
         """Verify emoticons are no longer than 15 characters.
         """
         string = "()"  # 0
         matches = self.matcher.matches(string)
-        assert matches == set()
+        assert matches == []
 
         string = "(mathematical123)"  # 15
         matches = self.matcher.matches(string)
-        assert matches == set(["mathematical123"])
+        assert matches == ["mathematical123"]
 
         string = "(mathematical1234)"  # 16
         matches = self.matcher.matches(string)
-        assert matches == set()
+        assert matches == []
 
 
 class TestLinkMatcher(object):
@@ -165,20 +165,20 @@ class TestLinkMatcher(object):
     def test_no_links(self):
         string = "It came from the night-o-sphere. bum .bum .bum."
         matches = self.matcher.matches(string)
-        assert matches == set()
+        assert matches == []
 
     def test_link(self):
         sweet_vid = "https://www.youtube.com/watch?v=aZdtZIuVzmE"
         string = "Finn, check it: {}".format(sweet_vid)
         matches = self.matcher.matches(string)
-        assert matches == set([sweet_vid])
+        assert matches == [sweet_vid]
 
     def test_multiple(self):
         vid1 = "https://www.youtube.com/watch?v=IZHnWvMaoKM"
         vid2 = "https://www.youtube.com/watch?v=dGGk8y_s9uQ"
         string = "Watch this: {} and this: {}".format(vid1, vid2)
         matches = self.matcher.matches(string)
-        assert matches == set([vid1, vid2])
+        assert matches == [vid1, vid2]
 
     def test_multiline_matching(self):
         vid = "https://www.youtube.com/watch?v=dGGk8y_s9uQ"
@@ -188,13 +188,13 @@ class TestLinkMatcher(object):
             Bacon pancaaakkkeeessss: {}
             """.format(vid)
         matches = self.matcher.matches(string)
-        assert matches == set([vid])
+        assert matches == [vid]
 
     def test_no_surrounding_whitespace(self):
         """We're only matching links surrounded by whitespace."""
         string = "Don't visit _night-o-sphere.com_. It's too scary."
         matches = self.matcher.matches(string)
-        assert matches == set()
+        assert matches == []
 
     def test_valid_links(self):
         """Finding links is hard."""
@@ -246,7 +246,7 @@ class TestLinkMatcher(object):
         ]
         for url in valid_urls:
             matches = self.matcher.matches(url)
-            assert matches == set([url])
+            assert matches == [url]
 
     def test_invalid_links(self):
         invalid_urls = [
@@ -279,4 +279,4 @@ class TestLinkMatcher(object):
         ]
         for url in invalid_urls:
             matches = self.matcher.matches(url)
-            assert matches == set()
+            assert matches == []

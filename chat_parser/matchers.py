@@ -24,13 +24,14 @@ class Matcher(object):
             raise NotImplementedError(".pattern must be defined.")
 
         matches = re.finditer(self.pattern, string)
-        matches = set(m.group(1) for m in matches)
+        matches = [m.group(1) for m in matches]
         matches = self.clean_matches(matches)
 
         return matches
 
     def clean_matches(self, matches):
-        return set(map(lambda s: s.lower(), matches))
+        """Get rid of duplicates."""
+        return list(set(map(lambda s: s.lower(), matches)))
 
 
 class MentionMatcher(Matcher):
