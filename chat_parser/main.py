@@ -41,3 +41,7 @@ def main():
     lines = ''.join(sys.stdin.readlines())
 
     print parse(lines)
+
+
+if __name__ == "__main__":
+    main()  # Invoke as `chatparse' or `python -m chatparse'.
