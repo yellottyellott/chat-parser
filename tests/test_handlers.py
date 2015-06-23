@@ -1,4 +1,7 @@
+from __future__ import unicode_literals
+
 import mock
+import json
 
 from chat_parser.handlers import Handler, parse
 
@@ -36,6 +39,8 @@ class TestHandler(object):
             'emoticons': ['thumbsup'],
             'links': [{'url': 'jake.com', 'title': 'Jake'}]
         }
+        # JSON encoding has non deterministic ordering.
+        # Verify it serializes.
         self.handler.serialize(data)
 
 
@@ -47,4 +52,10 @@ class TestParseFunction(object):
             return mock.Mock(text="<title>Jake</title>")
 
         with mock.patch('requests.get', mock_get):
-            parse(string)
+            string = parse(string)
+
+        data = json.loads(string)
+
+        assert data['mentions'] == ['jake']
+        assert data['emoticons'] == ['thumbsup']
+        assert data['links'] == [{'url': 'jake.com', 'title': 'Jake'}]
