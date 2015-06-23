@@ -4,4 +4,8 @@ ndg-httpsclient==0.4.0
 pyasn1==0.1.7
 
 lxml==3.4.4
+requests==2.7.0
+futures==3.0.3
+
 pytest==2.6.4
+mock==1.0.1

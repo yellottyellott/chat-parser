@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from requests.exceptions import RequestException
 import pytest
+import mock
 
 from chat_parser import matchers
 
@@ -155,46 +157,16 @@ class TestEmoticonMatcher(object):
         assert matches == []
 
 
+def mock_fetch_title(url):
+    return url
+
+
 class TestLinkMatcher(object):
     """
     Verifies EmoticonMatcher correctly finds all emoticons in a string.
     """
     def setup_method(self, method):
         self.matcher = matchers.LinkMatcher()
-
-    def test_no_links(self):
-        string = "It came from the night-o-sphere. bum .bum .bum."
-        matches = self.matcher.get_matches(string)
-        assert matches == []
-
-    def test_link(self):
-        sweet_vid = "https://www.youtube.com/watch?v=aZdtZIuVzmE"
-        string = "Finn, check it: {}".format(sweet_vid)
-        matches = self.matcher.get_matches(string)
-        assert matches == [sweet_vid]
-
-    def test_multiple(self):
-        vid1 = "https://www.youtube.com/watch?v=IZHnWvMaoKM"
-        vid2 = "https://www.youtube.com/watch?v=dGGk8y_s9uQ"
-        string = "Watch this: {} and this: {}".format(vid1, vid2)
-        matches = self.matcher.get_matches(string)
-        assert matches == [vid1, vid2]
-
-    def test_multiline_matching(self):
-        vid = "https://www.youtube.com/watch?v=dGGk8y_s9uQ"
-        string = """
-            Makin' pancakes!
-            Makin' bacon pancakes!
-            Bacon pancaaakkkeeessss: {}
-            """.format(vid)
-        matches = self.matcher.get_matches(string)
-        assert matches == [vid]
-
-    def test_no_surrounding_whitespace(self):
-        """We're only matching links surrounded by whitespace."""
-        string = "Don't visit _night-o-sphere.com_. It's too scary."
-        matches = self.matcher.get_matches(string)
-        assert matches == []
 
     def test_valid_links(self):
         """Finding links is hard."""
@@ -280,3 +252,99 @@ class TestLinkMatcher(object):
         for url in invalid_urls:
             matches = self.matcher.get_matches(url)
             assert matches == []
+
+    def test_no_links(self):
+        string = "It came from the night-o-sphere. bum .bum .bum."
+        matches = self.matcher.matches(string)
+        assert matches == []
+
+    @mock.patch('chat_parser.matchers.fetch_title', mock_fetch_title)
+    def test_link(self):
+        sweet_vid = "https://www.youtube.com/watch?v=aZdtZIuVzmE"
+        string = "Finn, check it: {}".format(sweet_vid)
+        matches = self.matcher.matches(string)
+        assert matches == [{"url": sweet_vid, "title": sweet_vid}]
+
+    @mock.patch('chat_parser.matchers.fetch_title', mock_fetch_title)
+    def test_multiple(self):
+        vid1 = "https://www.youtube.com/watch?v=IZHnWvMaoKM"
+        vid2 = "https://www.youtube.com/watch?v=dGGk8y_s9uQ"
+        string = "Watch this: {} and this: {}".format(vid1, vid2)
+        matches = self.matcher.matches(string)
+        expected_data = [
+            {"url": vid1, "title": vid1},
+            {"url": vid2, "title": vid2}]
+        assert matches == expected_data
+
+    @mock.patch('chat_parser.matchers.fetch_title', mock_fetch_title)
+    def test_multiline_matching(self):
+        vid = "https://www.youtube.com/watch?v=dGGk8y_s9uQ"
+        string = """
+            Makin' pancakes!
+            Makin' bacon pancakes!
+            Bacon pancaaakkkeeessss: {}
+            """.format(vid)
+        matches = self.matcher.matches(string)
+        assert matches == [{"url": vid, "title": vid}]
+
+    @mock.patch('chat_parser.matchers.fetch_title', mock_fetch_title)
+    def test_no_surrounding_whitespace(self):
+        """We're only matching links surrounded by whitespace."""
+        string = "Don't visit _night-o-sphere.com_. It's too scary."
+        matches = self.matcher.matches(string)
+        assert matches == []
+
+
+class TestFetchTitle(object):
+    """
+    Tests that fetch_title handles fetching the page title for a url correctly.
+    """
+    def test_no_scheme(self):
+        def mock_get(url, timeout):
+            return mock.Mock(text="<title>Royal Tart Toter</title>")
+
+        with mock.patch('requests.get', mock_get):
+            url = "landofooo.com"
+            title = matchers.fetch_title(url)
+            assert title == "Royal Tart Toter"
+
+    def test_no_title_tag(self):
+        def mock_get(url, timeout):
+            return mock.Mock(text="<body>Royal Tart Toter</body>")
+
+        with mock.patch('requests.get', mock_get):
+            url = "landofooo.com"
+            title = matchers.fetch_title(url)
+            assert title == ''
+
+    def test_title_tag(self):
+        def mock_get(url, timeout):
+            return mock.Mock(text="<title>Royal Tart Toter</title>")
+
+        with mock.patch('requests.get', mock_get):
+            url = "landofooo.com"
+            title = matchers.fetch_title(url)
+            assert title == "Royal Tart Toter"
+
+    def test_not_a_web_url(self):
+        url = "ftp://finn@ooo.com"
+        title = matchers.fetch_title(url)
+        assert title == ''
+
+    def test_server_timeout(self):
+        def raise_get(url, timeout):
+            raise RequestException()
+
+        with mock.patch('requests.get', raise_get):
+            url = "lumpyspace.com"
+            title = matchers.fetch_title(url)
+            assert title == ''
+
+    def test_parse_error(self):
+        def raise_fromstring(url, timeout):
+            raise Exception()
+
+        with mock.patch('lxml.html.fromstring', raise_fromstring):
+            url = "gutgrinder.com"
+            title = matchers.fetch_title(url)
+            assert title == ''

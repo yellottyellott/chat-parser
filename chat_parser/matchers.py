@@ -1,6 +1,13 @@
 from __future__ import unicode_literals
 
+import logging
 import re
+
+from concurrent.futures import ThreadPoolExecutor
+import requests
+from lxml import html
+
+logger = logging.getLogger(__name__)
 
 
 class Matcher(object):
@@ -77,4 +84,57 @@ class LinkMatcher(Matcher):
     )
 
     def clean_matches(self, matches):
-        return matches
+        """Fetch the url titles."""
+        data = []
+
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            for url in matches:
+                future = executor.submit(fetch_title, url)
+                data.append({
+                    "url": url,
+                    "title": future.result(),
+                })
+
+        return data
+
+
+def fetch_title(url):
+    """
+    Fetches the title for a given url.
+
+    If the url is not a web page or there is an error fetching the
+    page, an empty string, '', is returned.
+    """
+    logger.debug("Fetching title for: {}".format(url))
+
+    scheme = '(https?|ftps?)://'
+    if not re.match(scheme, url):
+        url = 'http://' + url
+
+    if not url.startswith('http'):
+        return ''
+
+    try:
+        page = requests.get(url, timeout=4)
+    except requests.exceptions.RequestException:
+        logger.info("Fetching url: {} timed out.".format(url))
+        return ''
+
+    try:
+        # XXX: I assume this can throw a ParseError, but I can't find the
+        # stupid documentation on it.
+        # Supposedly:
+        #   "It will not raise an exception on parser errors. You should
+        #   use libxml2 version 2.6.21 or newer to take advantage of this
+        #   feature."
+        # But I find that hard to believe.
+        tree = html.fromstring(page.text)
+    except:
+        logger.info("Error parsing page from: {}".format(url))
+        return ''
+
+    el = tree.find(".//title")
+    if el is None:
+        return ''
+
+    return el.text
