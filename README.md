@@ -69,6 +69,34 @@ Links are URLs contained in the message, along with the page's title.
     }
 
 
+Installation
+====
+
+    $ pip install git+https://github.com/yellottyellott/chat-parser.git
+
+
+Usage
+====
+
+    $ chatparse "Hey, @Finn, check out what @BMO can do: https://www.youtube.com/watch?v=ZRlUmkHlCCg (breadcrumbs)."
+
+    {
+      "mentions": [
+        "bmo",
+        "finn"
+      ],
+      "emoticons": [
+        "breadcrumbs"
+      ],
+      "links": [
+        {
+          "url": "https://www.youtube.com/watch?v=ZRlUmkHlCCg",
+          "title": "Adventure Time   Guardians of Sunshine  song - YouTube"
+        }
+      ]
+    }
+
+
 Development
 ====
 
