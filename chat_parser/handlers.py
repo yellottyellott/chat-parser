@@ -1,21 +1,21 @@
-from . import matchers
+from . import parsers
 from . import serializers
 
 
 class Handler(object):
-    matcher_classes = {
-        'mentions': matchers.MentionMatcher,
-        'emoticons': matchers.EmoticonMatcher,
-        'links': matchers.LinkMatcher,
+    parser_classes = {
+        'mentions': parsers.MentionParser,
+        'emoticons': parsers.EmoticonParser,
+        'links': parsers.LinkParser,
     }
 
     serializer_class = serializers.JSONSerializer
 
     def parse(self, string):
         data = {}
-        for key, cls in self.matcher_classes.iteritems():
-            matcher = cls()
-            matches = matcher.matches(string)
+        for key, cls in self.parser_classes.iteritems():
+            parser = cls()
+            matches = parser.parse(string)
             if matches:
                 data[key] = matches
 

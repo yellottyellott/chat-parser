@@ -5,50 +5,50 @@ from requests.exceptions import RequestException
 import pytest
 import mock
 
-from chat_parser import matchers
+from chat_parser import parsers
 
 
-class TestMatcher(object):
+class TestParser(object):
     """
-    Tests the base Matcher class.
+    Tests the base Parser class.
     """
     def test_pattern_not_defined(self):
-        matcher = matchers.Matcher()
+        parser = parsers.Parser()
         string = "Adventure time! Come on, grab your friends."""
 
         with pytest.raises(NotImplementedError):
-            matcher.matches(string)
+            parser.parse(string)
 
 
-class TestMentionMatcher(object):
+class TestMentionParser(object):
     """
-    Verifies MentionMatcher correctly finds all mentions in a string.
+    Verifies MentionParser correctly finds all mentions in a string.
     """
     def setup_method(self, method):
-        self.matcher = matchers.MentionMatcher()
+        self.parser = parsers.MentionParser()
 
     def test_no_mentions(self):
         string = "Adventure time! Come on, grab your friends."""
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == []
 
     def test_mention(self):
         string = "With @jake the dog!"
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == ["jake"]
 
     def test_multiple(self):
         string = "With @jake the dog! And @finn the human,"
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == ["jake", "finn"]
 
     def test_nonword_characters(self):
         string = "With @!c3k!ng the wizard!"
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == []
 
         string = "With @ic3_k!ng the wizard!"
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == ["ic3_k"]
 
     def test_same_nick_mentioned_multiple_times(self):
@@ -58,7 +58,7 @@ class TestMentionMatcher(object):
         only returned once.
         """
         string = "With @jake the dog! And @jake the dog,"
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == ["jake"]
 
     def test_case_insensitivity(self):
@@ -68,42 +68,42 @@ class TestMentionMatcher(object):
         exist, make sure it's only returned once.
         """
         string = "With @Jake the dog! And @JAKE the dog,"
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == ["jake"]
 
     def test_all_mention(self):
         """@all is a builtin mention."""
         string = "@all The fun will never end!"
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == ["all"]
 
     def test_here_mention(self):
         """@here is a built in mention."""
         string = "@here It's Adventure Time!"
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == ["here"]
 
 
-class TestEmoticonMatcher(object):
+class TestEmoticonParser(object):
     """
-    Verifies EmoticonMatcher correctly finds all emoticons in a string.
+    Verifies EmoticonParser correctly finds all emoticons in a string.
     """
     def setup_method(self, method):
-        self.matcher = matchers.EmoticonMatcher()
+        self.parser = parsers.EmoticonParser()
 
     def test_no_emoticons(self):
         string = "Adventure time! Come on, grab your friends."""
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == []
 
     def test_emoticon(self):
         string = "(jake) the dog!"
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == ["jake"]
 
     def test_multiple(self):
         string = "(jake) the dog! and (finn) the human!"
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == ["jake", "finn"]
 
     def test_same_emoticon_sent_multiple_times(self):
@@ -113,7 +113,7 @@ class TestEmoticonMatcher(object):
         only returend once.
         """
         string = "(jake)(jake)(jake). (jake)(jake)(jake). (jake) your booty."
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == ["jake"]
 
     def test_case_insensitivity(self):
@@ -123,37 +123,37 @@ class TestEmoticonMatcher(object):
         exist, make sure it's only returned once.
         """
         string = "(jake) the dog. (Jake) The Dog. (JAKE) THE DOGGGG!!!"
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == ["jake"]
 
     def test_numbers(self):
         string = "Science. Is. (mathematical123)!"
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == ["mathematical123"]
 
     def test_underscores(self):
         string = "(jake_the_dog) is not a valid emoticon."
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == []
 
     def test_whitespace(self):
         string = "(jake the dog) is not a valid emoticon."
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == []
 
     def test_character_length(self):
         """Verify emoticons are no longer than 15 characters.
         """
         string = "()"  # 0
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == []
 
         string = "(mathematical123)"  # 15
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == ["mathematical123"]
 
         string = "(mathematical1234)"  # 16
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == []
 
 
@@ -161,12 +161,12 @@ def mock_fetch_title(url):
     return url
 
 
-class TestLinkMatcher(object):
+class TestLinkParser(object):
     """
-    Verifies EmoticonMatcher correctly finds all emoticons in a string.
+    Verifies EmoticonParser correctly finds all emoticons in a string.
     """
     def setup_method(self, method):
-        self.matcher = matchers.LinkMatcher()
+        self.parser = parsers.LinkParser()
 
     def test_valid_links(self):
         """Finding links is hard."""
@@ -217,7 +217,7 @@ class TestLinkMatcher(object):
             "finn:thehuman@10.0.0.1",
         ]
         for url in valid_urls:
-            matches = self.matcher.get_matches(url)
+            matches = self.parser.matches(url)
             assert matches == [url]
 
     def test_invalid_links(self):
@@ -250,33 +250,33 @@ class TestLinkMatcher(object):
             "http://.www.foo.bar./",
         ]
         for url in invalid_urls:
-            matches = self.matcher.get_matches(url)
+            matches = self.parser.matches(url)
             assert matches == []
 
     def test_no_links(self):
         string = "It came from the night-o-sphere. bum .bum .bum."
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == []
 
-    @mock.patch('chat_parser.matchers.fetch_title', mock_fetch_title)
+    @mock.patch('chat_parser.parsers.fetch_title', mock_fetch_title)
     def test_link(self):
         sweet_vid = "https://www.youtube.com/watch?v=aZdtZIuVzmE"
         string = "Finn, check it: {}".format(sweet_vid)
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == [{"url": sweet_vid, "title": sweet_vid}]
 
-    @mock.patch('chat_parser.matchers.fetch_title', mock_fetch_title)
+    @mock.patch('chat_parser.parsers.fetch_title', mock_fetch_title)
     def test_multiple(self):
         vid1 = "https://www.youtube.com/watch?v=IZHnWvMaoKM"
         vid2 = "https://www.youtube.com/watch?v=dGGk8y_s9uQ"
         string = "Watch this: {} and this: {}".format(vid1, vid2)
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         expected_data = [
             {"url": vid1, "title": vid1},
             {"url": vid2, "title": vid2}]
         assert matches == expected_data
 
-    @mock.patch('chat_parser.matchers.fetch_title', mock_fetch_title)
+    @mock.patch('chat_parser.parsers.fetch_title', mock_fetch_title)
     def test_multiline_matching(self):
         vid = "https://www.youtube.com/watch?v=dGGk8y_s9uQ"
         string = """
@@ -284,14 +284,14 @@ class TestLinkMatcher(object):
             Makin' bacon pancakes!
             Bacon pancaaakkkeeessss: {}
             """.format(vid)
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == [{"url": vid, "title": vid}]
 
-    @mock.patch('chat_parser.matchers.fetch_title', mock_fetch_title)
+    @mock.patch('chat_parser.parsers.fetch_title', mock_fetch_title)
     def test_no_surrounding_whitespace(self):
         """We're only matching links surrounded by whitespace."""
         string = "Don't visit _night-o-sphere.com_. It's too scary."
-        matches = self.matcher.matches(string)
+        matches = self.parser.parse(string)
         assert matches == []
 
 
@@ -305,7 +305,7 @@ class TestFetchTitle(object):
 
         with mock.patch('requests.get', mock_get):
             url = "landofooo.com"
-            title = matchers.fetch_title(url)
+            title = parsers.fetch_title(url)
             assert title == "Royal Tart Toter"
 
     def test_no_title_tag(self):
@@ -314,7 +314,7 @@ class TestFetchTitle(object):
 
         with mock.patch('requests.get', mock_get):
             url = "landofooo.com"
-            title = matchers.fetch_title(url)
+            title = parsers.fetch_title(url)
             assert title == ''
 
     def test_title_tag(self):
@@ -323,12 +323,12 @@ class TestFetchTitle(object):
 
         with mock.patch('requests.get', mock_get):
             url = "landofooo.com"
-            title = matchers.fetch_title(url)
+            title = parsers.fetch_title(url)
             assert title == "Royal Tart Toter"
 
     def test_not_a_web_url(self):
         url = "ftp://finn@ooo.com"
-        title = matchers.fetch_title(url)
+        title = parsers.fetch_title(url)
         assert title == ''
 
     def test_server_timeout(self):
@@ -337,7 +337,7 @@ class TestFetchTitle(object):
 
         with mock.patch('requests.get', raise_get):
             url = "lumpyspace.com"
-            title = matchers.fetch_title(url)
+            title = parsers.fetch_title(url)
             assert title == ''
 
     def test_parse_error(self):
@@ -346,5 +346,5 @@ class TestFetchTitle(object):
 
         with mock.patch('lxml.html.fromstring', raise_fromstring):
             url = "gutgrinder.com"
-            title = matchers.fetch_title(url)
+            title = parsers.fetch_title(url)
             assert title == ''

@@ -10,9 +10,9 @@ from lxml import html
 logger = logging.getLogger(__name__)
 
 
-class Matcher(object):
+class Parser(object):
     """
-    Finds all matches of pattern.
+    Finds all matches of `regex`.
 
     `regex` must be defined in subclassses. Matches are case insensitive
     by default.
@@ -26,15 +26,15 @@ class Matcher(object):
         if pattern:
             self.regex = re.compile(pattern, re.IGNORECASE | re.MULTILINE)
 
-    def matches(self, string):
+    def parse(self, string):
         if not self.regex:
             raise NotImplementedError(".regex must be defined.")
 
-        matches = self.get_matches(string)
+        matches = self.matches(string)
         matches = self.clean_matches(matches)
         return matches
 
-    def get_matches(self, string):
+    def matches(self, string):
         matches = self.regex.finditer(string)
         matches = [m.group(1) for m in matches]
         return matches
@@ -44,21 +44,21 @@ class Matcher(object):
         return list(set(map(lambda s: s.lower(), matches)))
 
 
-class MentionMatcher(Matcher):
+class MentionParser(Parser):
     """
     Finds all @mentions in a string.
     """
     regex = re.compile('@(\w+)', re.IGNORECASE | re.MULTILINE)
 
 
-class EmoticonMatcher(Matcher):
+class EmoticonParser(Parser):
     """
     Finds all (emoticons) in a string.
     """
     regex = re.compile('\(([a-zA-Z0-9]{1,15})\)', re.IGNORECASE | re.MULTILINE)
 
 
-class LinkMatcher(Matcher):
+class LinkParser(Parser):
     """
     Finds all links in a string.
 
