@@ -20,22 +20,22 @@ class Matcher(object):
     `pattern` should be defined with 1 matching group to return as the
     matching token.
     """
-    pattern = None
+    regex = None
 
     def __init__(self, pattern=None):
         if pattern:
-            self.pattern = pattern
+            self.regex = re.compile(pattern)
 
     def matches(self, string):
-        if not self.pattern:
-            raise NotImplementedError(".pattern must be defined.")
+        if not self.regex:
+            raise NotImplementedError(".regex must be defined.")
 
         matches = self.get_matches(string)
         matches = self.clean_matches(matches)
         return matches
 
     def get_matches(self, string):
-        matches = re.finditer(self.pattern, string)
+        matches = self.regex.finditer(string)
         matches = [m.group(1) for m in matches]
         return matches
 
@@ -48,14 +48,14 @@ class MentionMatcher(Matcher):
     """
     Finds all @mentions in a string.
     """
-    pattern = '@(\w+)'
+    regex = re.compile('@(\w+)')
 
 
 class EmoticonMatcher(Matcher):
     """
     Finds all (emoticons) in a string.
     """
-    pattern = '\(([a-zA-Z0-9]{1,15})\)'
+    regex = re.compile('\(([a-zA-Z0-9]{1,15})\)')
 
 
 class LinkMatcher(Matcher):
@@ -66,7 +66,7 @@ class LinkMatcher(Matcher):
         https://mathiasbynens.be/demo/url-regex
         https://gist.github.com/dperini/729294#comment-1296121
     """
-    pattern = (
+    regex = re.compile(
         '(?:\s|^)'
         '('
             '(?:(?:https?|s?ftp)://)?'  # scheme
