@@ -23,6 +23,34 @@ other formats.
     }
 
 
+Installation
+====
+
+    $ pip install git+https://github.com/yellottyellott/chat-parser.git
+
+
+Usage
+====
+
+    $ chatparse "Hey, @Finn, check out what @BMO can do: https://www.youtube.com/watch?v=ZRlUmkHlCCg (breadcrumbs)."
+
+    {
+      "mentions": [
+        "bmo",
+        "finn"
+      ],
+      "emoticons": [
+        "breadcrumbs"
+      ],
+      "links": [
+        {
+          "url": "https://www.youtube.com/watch?v=ZRlUmkHlCCg",
+          "title": "Adventure Time   Guardians of Sunshine  song - YouTube"
+        }
+      ]
+    }
+
+
 Mention Parsing
 ----
 [@mentions][1] are a way to mention a user. Mentions start with an `@` and end
@@ -64,34 +92,6 @@ Links are URLs contained in the message, along with the page's title.
         {
           "url": "http://www.nbcolympics.com",
           "title": "NBC Olympics | 2014 NBC Olympics in Sochi Russia"
-        }
-      ]
-    }
-
-
-Installation
-====
-
-    $ pip install git+https://github.com/yellottyellott/chat-parser.git
-
-
-Usage
-====
-
-    $ chatparse "Hey, @Finn, check out what @BMO can do: https://www.youtube.com/watch?v=ZRlUmkHlCCg (breadcrumbs)."
-
-    {
-      "mentions": [
-        "bmo",
-        "finn"
-      ],
-      "emoticons": [
-        "breadcrumbs"
-      ],
-      "links": [
-        {
-          "url": "https://www.youtube.com/watch?v=ZRlUmkHlCCg",
-          "title": "Adventure Time   Guardians of Sunshine  song - YouTube"
         }
       ]
     }
