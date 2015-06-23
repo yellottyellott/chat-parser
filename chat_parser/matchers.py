@@ -14,17 +14,17 @@ class Matcher(object):
     """
     Finds all matches of pattern.
 
-    `pattern` must be defined in subclassses. Matches are case insensitive
+    `regex` must be defined in subclassses. Matches are case insensitive
     by default.
 
-    `pattern` should be defined with 1 matching group to return as the
+    `regex` should be defined with 1 matching group to return as the
     matching token.
     """
     regex = None
 
     def __init__(self, pattern=None):
         if pattern:
-            self.regex = re.compile(pattern)
+            self.regex = re.compile(pattern, re.IGNORECASE | re.MULTILINE)
 
     def matches(self, string):
         if not self.regex:
@@ -48,14 +48,14 @@ class MentionMatcher(Matcher):
     """
     Finds all @mentions in a string.
     """
-    regex = re.compile('@(\w+)')
+    regex = re.compile('@(\w+)', re.IGNORECASE | re.MULTILINE)
 
 
 class EmoticonMatcher(Matcher):
     """
     Finds all (emoticons) in a string.
     """
-    regex = re.compile('\(([a-zA-Z0-9]{1,15})\)')
+    regex = re.compile('\(([a-zA-Z0-9]{1,15})\)', re.IGNORECASE | re.MULTILINE)
 
 
 class LinkMatcher(Matcher):
@@ -80,8 +80,8 @@ class LinkMatcher(Matcher):
             ')'
             '(?::\d{2,5})?'  # port
             '(?:/\S*)?'  # resource
-        ')'
-    )
+        ')',
+        re.IGNORECASE | re.MULTILINE)
 
     def clean_matches(self, matches):
         """Fetch the url titles."""
